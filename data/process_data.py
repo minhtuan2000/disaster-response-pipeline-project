@@ -4,6 +4,14 @@ from sqlalchemy import create_engine
 
 
 def load_data(messages_filepath, categories_filepath):
+    """Load messages dataset and categories dataset to a DataFrame
+    
+    Args:
+        messages_filepath: the path to messages dataset
+        categories_filepath: the path to categories dataset 
+    Returns:
+        DataFrame: the merged dataset
+    """ 
     messages = pd.read_csv(messages_filepath, index_col='id')
     categories = pd.read_csv(categories_filepath, index_col='id')
     df = messages.merge(categories, how='outer', left_index=True, right_index=True)
@@ -11,6 +19,15 @@ def load_data(messages_filepath, categories_filepath):
 
 
 def clean_data(df):
+    """Split the categories column to 36 individual columns and convert their values to 0 / 1.
+    Drop the original categories column.
+    Drop duplicated rows.
+    
+    Args:
+        df: the dataset
+    Returns:
+        DataFrame: the cleaned dataset
+    """ 
     # split categories into separate category columns
     categories = df['categories'].str.split(';', expand=True)
     row = categories.iloc[0]
@@ -33,6 +50,12 @@ def clean_data(df):
 
 
 def save_data(df, database_filename):
+    """Save the processed dataset to a SQL database.
+    
+    Args:
+        df: the dataset
+        database_filename: the path to the SQL database
+    """ 
     engine = create_engine('sqlite:///{}'.format(database_filename))
     df.to_sql('Data', engine, index=False)
 
